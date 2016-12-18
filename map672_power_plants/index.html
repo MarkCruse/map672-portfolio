@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset=utf-8 />
+    <title>Lab 09 Interactive bi-variate web map</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
+    <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: whitesmoke;
+            font-family: Lato, sans-serif;
+            color: #0D0000;
+        }
+        header {
+            padding: 6px 10%;
+        }
+        h1 {
+            display: inline-block;
+            margin-right: 20px;
+            color: #001323;
+        }
+        h2 {
+            display: inline-block;
+            color: #001323;
+        }
+        #map {
+            width: 80%;
+            height: 540px;
+            margin: 10px auto;
+        }
+        footer {
+            padding: 6px 10%;
+            width: 80%;
+        }
+        p {
+            font-size: 1em;
+            color: #001323;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>U.S. Power Plants</h1>
+        <h2>Electricity Output</h2>
+    </header>
+
+    <div id='map'></div>
+
+    <footer>
+        <p>The map shows the relative magnitudes of power plants scaled by the total electric capacity output. Power plant data can be filtered using the fuel filters list in the top right hand corner. Clicking on the map will reveal a 500km radius of power plants in the area.  A popup window lists the cumulative energy output for the entire area.  Within the 500km area clicking on an individual circle will present the data for that plant.<br><sup><br>Data source: U.S. Energy Information Administration (<a href="http://www.eia.gov/electricity/data/eia923/">http://www.eia.gov/electricity/data/eia923/</a>)</sup><p align="right">Map authored by Mark Cruse</p>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
+    <script src="power-plants.js"></script>
+    <script>
+
+        var map = L.map('map', {
+            center: [36,-94],       //center map on U.S. (near Elkins, Arkansas)
+            zoom: 4,
+            minZoom: 2
+        });
+
+        var tiles = L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+          subdomains: 'abcd',
+          maxZoom: 19
+        }).addTo(map);
+        
+
+        
+        var radiusCircle = L.circle([0, 0], 500000, {   // create a circle with a 500,000m radius
+            fillColor: 'white',
+            fillOpacity: .1,
+            color: 'yellow',
+            opacity: .3,
+            stroke: false,
+            weight: 3,
+        }).addTo(map);
+        
+        var commonStyles = {    // set the common styles of the circles
+            weight: 1,
+            stroke: 1,
+            fillOpacity: .4
+        }
+        var layerInfo = {       // build the energy layers
+            hydroLayer: {source:"Hydro", color:'#1f78b4'},
+            nuclearLayer: {source:"Nuclear", color:'#f8e1fa'},
+            solarLayer: {source:"Solar", color:'#f5f514'}
+        };
+        
+//  I am not sure this sorting works.  I decrease fill opacity from .8 to .4 and ordered the layerInfo to attempt to show all points
+         plants.features.sort(function(a, b) {   //sort so the higher mw circles are behind smaller mw plants
+             return b.properties.capacity_mw - a.properties.capacity_mw;
+         });
+
+        var geoJsonLayers = {};
+
+        for(var l in layerInfo) {     // for each specificed layer (layerInfo) add markers to map
+            geoJsonLayers[l] = L.geoJson(plants, {
+                pointToLayer: function(feature,latlng) {
+                    return L.circleMarker(latlng, commonStyles);
+                },
+                filter: function(feature) {     //filter only on the chosen energy sources
+                    if(feature.properties.fuel_source[layerInfo[l].source]) {
+                        return feature;
+                    }
+                },
+                style: function(feature) {      //color each marker based on energy source
+                    return {
+                        color: layerInfo[l].color,
+                        fillColor: layerInfo[l].color,
+                        radius: getRadius(feature.properties.fuel_source[layerInfo[l].source])
+                    }
+                }
+            }).addTo(map);     // add layer to map   
+        }   //end for loop
+    
+        
+        
+        var allLayers = {};
+ 
+        for(var x in layerInfo) {          //loop through the 3 layers (hydro, solar, nuclear)
+           allLayers[x] = L.geoJson(plants, {  
+            filter: function(feature) {
+                if(feature.properties.fuel_source[layerInfo[x].source]) {  //filter on chosen fuel sources
+                    //console.log(x,feature.properties.capacity_mw);
+                    return feature;
+                }                       //end if
+              }                         //end filter
+            });                         //end allLayers
+        }                               //end for loop
+   
+        
+        map.on('click', function(e) {
+            
+            var stats = {};   //create an empty object to hold mw per plant
+            for(var x in layerInfo) {
+                allLayers[x].eachLayer(function(layer) {   //loop through all layers
+                    var distance = e.latlng.distanceTo(layer.getLatLng())/1000;
+                    if(distance <= 500) {
+                        var props = layer.feature.properties;
+                        for(var source in props.fuel_source) {  //aggregate based on fuel source
+                            if(stats[source]) {     //if source has been identified add to existing aggregate
+                                stats[source] += props.fuel_source[source];
+                            }else{                  //no existing source in structure
+                                stats[source] = props.fuel_source[source];
+                            }                       //end if
+                        }                           //end for loop to total fuel source
+                    }                               //end if for distance of plants within 500km radius
+                });                                 // end looping through each layer
+            }                                       // end for loop on layerInfo
+            
+            radiusCircle.setLatLng(e.latlng);  //encompass the area with a circle
+            var statsContent = '<b>Energy Sources From All Plants</b><br>';              //build the content for the overall power popup 
+            var statsCntr = 0;
+            for(stat in stats) {
+                statsContent += stat +': ' +stats[stat].toLocaleString() + ' MW<br>'
+                statsCntr += stats[stat];  //increment a counter to later determine if data is present
+            }
+            if(statsCntr > 0){  //if data in the circle invoke popup
+                radiusCircle.bindPopup(statsContent).openPopup();   //popup of aggregated energy source output
+            }
+            var statsContent = '';
+            var statsCntr = 0;
+            
+            for(var l in layerInfo) {       //loop through each layer identified in layerInfo
+                geoJsonLayers[l].eachLayer(function(layer) {
+                    var distance = e.latlng.distanceTo(layer.getLatLng())/1000;
+
+                    if(distance > 500) {        //if gt 500 meter from click point turn off circle
+                        layer.setStyle({
+                            stroke: false,
+                            fill: false
+                        });  
+                    } else {        //if click point is with 500 meter radius leave circles on
+                        layer.setStyle({    
+                            stroke: true,
+                            fill: true  
+                        });  
+                        
+                        var props = layer.feature.properties;       //assign layer properties to props
+                        var content = "<b>"+props.plant_name + "</b><br>";
+                        content += layerInfo[l].source + ": " +
+                         props.fuel_source[layerInfo[l].source]+" MW <br>";
+                        content += "Plant is <b>"+distance.toLocaleString()+
+                                        "km</b><br> from the initial click point."
+                        layer.bindPopup(content);
+                        
+                    }  //end if stmnt
+                }); // end geoJsonLayer
+            };  //end for loop
+        });     //end map click
+
+        var sourcesLabels = {       //labels for the selection box
+            "<b style='color:#1f78b4'>Hydro</b>": geoJsonLayers.hydroLayer,
+            "<b style='color:#f8e1fa'>Nuclear</b>": geoJsonLayers.nuclearLayer,
+            "<b style='color:#f5f514'>Solar</b>": geoJsonLayers.solarLayer,
+        }
+
+        // L.control places a selector on the map to turn on/off layers
+        L.control.layers(null, sourcesLabels, { collapsed:false }).addTo(map);   
+
+        function getRadius(val) {   //set circle radius based on plant energy output in mw
+            var radius = Math.sqrt(val/Math.PI);
+            return radius * .8;  
+        }
+
+            //console.log(layer.feature.properties);
+            //console.log(layer.feature.properties.plant_name);
+            //console.log(layer.feature.properties.fuel_source);
+
+    </script>
+
+</body>
+
+</html>
