@@ -41,7 +41,7 @@
         color: #003d71
     }
     p {
-        font-size: .9em;
+        font-size: 1.0em;
         color: #375671;
     }
     ul {
@@ -70,7 +70,11 @@
         background: white;
         float: left;
         margin-right: 20px;
-        border: 2px solid #dddddd;
+        border: 2px solid #d0d0d0;
+    }
+    img {
+      -webkit-filter: drop-shadow(5px 5px 5px #222);
+      filter: drop-shadow(5px 5px 5px #222);
     }
 </style>
 </head>
@@ -79,21 +83,24 @@
 
 <header>
     <h1>Mark Cruse - Cartographic Portfolio</h1>
-    <h2>MAP672: Programming for Web Mapping</br>
     <h2>Web Cartography at the University of Kentucky</h2>
-
+    </br>
+<!--    <h3>MAP672: Programming for Web Mapping</h3> -->
 </header>
     <section class="project">
-    <img src="images/" alt="">
-        
-    <h3>Test</h3>
-    <p></p>
-    <p></p>
+        <a target = '_blank' href="images/StPeteFL_Bus_Stops_with_half-mile_buffers.pdf" /><img src="images/St-Pete_small(388x240).png" alt="" class="project-image" /></a>
+        <h2><a target = '_blank' href="images/StPeteFL_Bus_Stops_with_half-mile_buffers.pdf" />St. Petersburg, FL bus stops with half mile buffer radius</a></h2>
+        <p>The map depicts the location of each bus stop in the St. Petersburg city limits.  A half mile buffer (yellow area) shows the walking distance to/from each stop. </br></br>The map was created using <a target = 'blank' href="https://www.qgis.org/">QGIS</a>. Map data was obtained from <a target = 'blank' href="https://www.openstreetmap.org" />OpenStreetMap (OSM)</a> using the QuickOSM plugin for QGIS.</p></section>
+
+    <section class="project">
+
+
+    <!--
     <ul>
-        <li><a href="" />one</li>
-        <li><a href="" />two</li>
+        <li></li>
+        <li></li>
     </ul>
-    <h3>a smaller heading</h3>
+    -->
 </section>
 </body>
 </html>
