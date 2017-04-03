@@ -9,10 +9,10 @@
 <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 
 <style>
-    
-/* CSS style rules go here! */   
-    body {  
-        background: #dadada;   
+
+/* CSS style rules go here! */
+    body {
+        background: #dadada;
         font-family: Roboto, sans-serif;
     }
     header {
@@ -45,7 +45,7 @@
     h1 .goldT{
         width:80px;
         vertical-align:middle;
-    }  
+    }
     h2 {
         font-family: Roboto, sans-serif;
         color: #375671;
@@ -67,7 +67,7 @@
         color: #375671;
         line-height: 1.6em;
     }
-    a, a:visited {   
+    a, a:visited {
         color: #003d71;
     }
     .project {
@@ -96,14 +96,21 @@
 </style>
 </head>
 
-<body> 
+<body>
 
 <header>
-    <h1>Mark Cruse - Cartographic Portfolio <span><img class="goldT" src="https://github.com/MarkCruse.png"></span></h1>      
+    <h1>Mark Cruse - Cartographic Portfolio <span><img class="goldT" src="https://github.com/MarkCruse.png"></span></h1>
     <h2>Web Cartography at the University of Kentucky</h2>
     </br>
 <!--    <h3>MAP672: Programming for Web Mapping</h3> -->
 </header>
+    <section class="project">
+        <a target = '_blank' href="https://markcruse.github.io/turtletracks/" /><img src="images/tracking_turtles.png" alt="Tracking Turtle" class="project-image" /></a>
+        <h2><a target='_blank' href="https://markcruse.github.io/turtletracks/" />Tracking Turtles</a></a></h2>
+        <p>The migratory movements of endangered sea turtles being tracked by satellite provide insight to marine biolgists and conservationists. This map is intended to showcase the many georeferenced datasets that are publicly accessible.
+        <br /><br />The map was created using D3.js. This 20 years worth of data encompasses over 19,000 telemetry points, acquired by 13 organizations/individuals, showcasing 7 species of sea turtles.</p>
+    </section>
+
     <section class="project">
         <a target = '_blank' href="images/StPeteFL_Bus_Stops_with_half-mile_buffers.pdf" /><img src="images/St-Pete_small(388x240).png" alt="St. Petersburg, FL bus stops with half mile buffer radius" class="project-image" /></a>
         <h2><a target = '_blank' href="images/StPeteFL_Bus_Stops_with_half-mile_buffers.pdf" />St. Petersburg, FL bus stops with half mile buffer radius</a></h2>
@@ -122,7 +129,7 @@
         <a target = '_blank' href="https://markcruse.github.io/map672_power_plants" /><img src="images/Power_Plants.png" alt="U.S. Power Plants" class="project-image" /></a>
         <h2><a target='_blank' href="https://markcruse.github.io/map672_power_plants" />U.S. Power Plant Energy Output</a></h2>
         <p>Relative magnitudes of power plants scaled by the total electric capacity output. Power plant data can be filtered using fuel consumpution filters list in the top right hand corner. Clicking on the map will reveal a 500km radius of power plants and the total source of power output. A popup window lists the cumulative energy output for the entire area. Within the 500km area clicking on an individual circle will present the data for that plant. </br></br>Data source: <a target = '_blank' href="http://www.eia.gov/electricity/data/eia923/" />U.S. Energy Information Administration</a>.</br></br>The map was created using html, javascript, and the <a target='_blank' href="http://leafletjs.com">Leaflet</a> javascript library.</p>
-    </section> 
+    </section>
 <footer><center>Mark Cruse - Cartographic Portfolio created for MAP672 class in <b><a target='_blank' href="http://newmapsplus.uky.edu/" />New Maps Plus</a></b> program offered at the University of Kentucky</center></footer>
 </body>
 </html>
